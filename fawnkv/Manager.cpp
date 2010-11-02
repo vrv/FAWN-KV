@@ -450,7 +450,7 @@ void Manager::failNode(Node* i)
                                                 fail->id->actual_data_str(),
                                                 pred->n->IP,
                                                 pred->n->port,
-                                                MERGE);
+                                                flushmode::MERGE);
 
             cout << "shortening range: " << getSuccessorID(fail->id, true)->actual_data_str() << endl;
 
@@ -964,7 +964,7 @@ void Manager::chain_repair_done(const std::string& key, const std::string& endke
                                         key,
                                         endkey,
                                         pred->n->IP,
-                                        pred->n->port, PLAIN);
+                                        pred->n->port, flushmode::PLAIN);
 
 }
 
@@ -1130,7 +1130,7 @@ void Manager::vnode_pre_join(const std::string& vid, const std::string& ip, cons
  **/
 void Manager::vnode_join(const std::string& vid, const std::string& ip, const int32_t port, int32_t merge) {
 
-    if ((merge == MERGE) || (merge == PLAIN)) {
+    if ((merge == flushmode::MERGE) || (merge == flushmode::PLAIN)) {
         vnode_join_extend_chain(vid, ip, port, merge);
         return;
     }
@@ -1269,7 +1269,7 @@ void Manager::vnode_join_extend_chain(const std::string& vid, const std::string&
     ///
 
     vid_shorter_map[vid] = false; // safe to always set this to false regardless of range.
-    if (merge == MERGE)
+    if (merge == flushmode::MERGE)
         {
 
             cout << "[vnode_join] MERGE" << endl;
@@ -1289,7 +1289,7 @@ void Manager::vnode_join_extend_chain(const std::string& vid, const std::string&
                                                          replica_group_size-1);
         }
 
-    else if (merge == PLAIN)
+    else if (merge == flushmode::PLAIN)
         {
             cout << "[vnode_join] PLAIN" << endl;
 

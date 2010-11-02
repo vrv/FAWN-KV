@@ -127,7 +127,7 @@ void node_mgr::vnode_pre_join_response(const std::string& VnodeID, const std::ve
     }
 }
 
-void node_mgr::vnode_extend_chain( const std::string& vid, const std::string& nid, const std::string& start_key, const std::string& end_key, const std::string& ip, int32_t port, flushmode mode)
+void node_mgr::vnode_extend_chain( const std::string& vid, const std::string& nid, const std::string& start_key, const std::string& end_key, const std::string& ip, int32_t port, int32_t mode)
 {
     cout << "Extend Chain for range [" << bytes_to_hex(start_key) << ", " << bytes_to_hex(end_key) << "]" << endl;
     cout << "Vid key is " << bytes_to_hex(vid) << endl;
@@ -251,7 +251,7 @@ void node_mgr::precopy_response(const std::string& startKey, const std::string& 
     vid_precopy_map[vid]++; // atomically increment
     cout << "vnode -- " << bytes_to_hex(vid.data()) << endl;
     cout << "got " << vid_precopy_map[vid] << " precopy responses." << endl;
-    if (vid_extension_map[startKey] != SPLIT)
+    if (vid_extension_map[startKey] != flushmode::SPLIT)
     {
         cout << "[Precopy Response] Calling vnode_join with non-splitting flag" << endl;
         pthread_mutex_lock(&socket_lock);
@@ -972,7 +972,7 @@ void node_mgr::get_handler(const std::string& key, const int64_t continuation, c
         //unlock original DB
         pthread_rwlock_unlock(&(idb->dbLock));
 
-        gr->status = rc ? SUCCESS : NOT_EXIST;
+        gr->status = rc ? returnStatus::SUCCESS : returnStatus::NOT_EXIST;
         if (!rc) {
             gr->value.clear();
         }
@@ -982,7 +982,7 @@ void node_mgr::get_handler(const std::string& key, const int64_t continuation, c
     }
     else {
         cout << "Error GH: key does not lie in the DB ranges owned by this node!" << endl;
-        gr->status = STALE_RING;
+        gr->status = returnStatus::STALE_RING;
         gr->ip = ip;
         get_resp_queue.push(gr);
     }

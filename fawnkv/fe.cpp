@@ -149,8 +149,8 @@ void FrontEnd::put_w_response(const std::string& key, const int64_t continuation
     }
 }
 
-void FrontEnd::get_response(const std::string& key, const std::string& value, const int64_t continuation, const returnStatus status, const std::string& ip) {
-    if (status == STALE_RING) {
+void FrontEnd::get_response(const std::string& key, const std::string& value, const int64_t continuation, const int16_t status, const std::string& ip) {
+    if (status == returnStatus::STALE_RING) {
         // Update ring and try again
         UpdateRingState();
         get(key, continuation);
@@ -159,7 +159,7 @@ void FrontEnd::get_response(const std::string& key, const std::string& value, co
 
     if (NULL != get_cb) {
         DBID dkey(key);
-        bool success = (status == SUCCESS);
+        bool success = (status == returnStatus::SUCCESS);
         get_cb(dkey, value, continuation, success);
     }
 }

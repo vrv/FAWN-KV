@@ -112,7 +112,7 @@ public:
     const string key;
     int64_t continuation;
     string value;
-    returnStatus status;
+    int16_t status;
     string ip;
     GetResponseObj(string key, int64_t continuation) :
             key(key), continuation(continuation) {}
@@ -205,7 +205,7 @@ private:
 
     void init(string managerIP, string localIP, string stat_filename);
     void get_handler(const std::string& key, const int64_t continuation, const std::string& ip);
-    void vnode_extend_chain( const std::string& vid,const std::string& nid,  const std::string& start_key, const std::string& end_key, const std::string& ip, int32_t port, flushmode mode);
+    void vnode_extend_chain( const std::string& vid,const std::string& nid,  const std::string& start_key, const std::string& end_key, const std::string& ip, int32_t port, int32_t mode);
 
     void init(const string& ip, int32_t port);
 

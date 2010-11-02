@@ -2,9 +2,9 @@ Steps to build source code
 
 0. On Debian/Ubuntu GNU/Linux install the following (to build source)
 
-autoconf automake autotools-dev pkg-config m4 libtool libtbb2 libtbb-dev libboost-dev bison flex ruby-dev libssl-dev libgtest-dev
+autoconf automake autotools-dev pkg-config m4 libtool libtbb2 libtbb-dev libboost-dev libssl-dev libgtest-dev
 
-thrift-0.2.0 or later (install from source)
+thrift-0.5.0 or later (install from source)
             IMPORTANT: You must apply fawn-thrift.patch patch to the thrift source before compiling
             # cd thrift-0.X.0 && patch -p1 < FAWN-KV/patches/fawn-thrift.patch
              This is to ensure that our sighandler actually kills the TThreadedServer threads properly.
@@ -13,8 +13,11 @@ thrift-0.2.0 or later (install from source)
              If using TSimpleServer apply this patch
              http://issues.apache.org/jira/browse/THRIFT-567
 
+thrift may require the following packages to build: bison flex ruby-dev python-dev php5-dev
+You may also need to install a more specific boost package (libboost-thread-dev) for FAWN-KV.
 
-1. autoreconf -fis
+
+1. autoreconf -is
 2. ./configure [--with-ycsb]
 3. make
 

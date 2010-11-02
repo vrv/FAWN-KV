@@ -72,7 +72,7 @@ class FrontEnd : virtual public FawnKVFrontendIf
 
     void put_response(const std::string& key, const int64_t continuation, const bool success, const std::string& ip);
     void put_w_response(const std::string& key, const int64_t continuation, const bool success, const int64_t version, const std::string& ip);
-    void get_response(const std::string& key, const std::string& value, const int64_t continuation, const returnStatus status, const std::string& ip);
+    void get_response(const std::string& key, const std::string& value, const int64_t continuation, const int16_t status, const std::string& ip);
     void remove_response(const std::string& key, const int64_t continuation, const bool success, const std::string& ip);
 
 };

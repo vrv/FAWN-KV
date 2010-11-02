@@ -51,7 +51,7 @@ service FawnKVBackend {
     repairInfo chain_repair_mid_succ(1: binary key, 2: binary p_vid, 3: binary p_ip),
 
     oneway void chain_repair_single(1:binary new_start, 2: binary end_id),
-    oneway void vnode_extend_chain( 1: binary vid,2: binary nid, 3: binary start_key, 4: binary end_key, 5: binary ip, 6: i32 port, 7: flushmode mode),
+    oneway void vnode_extend_chain( 1: binary vid,2: binary nid, 3: binary start_key, 4: binary end_key, 5: binary ip, 6: i32 port, 7: i32 mode),
     oneway void integrity(1: i32 hops),
 
     oneway void init(1: string ip, 2: i32 port),
@@ -61,7 +61,7 @@ service FawnKVBackend {
 service FawnKVFrontend {
     oneway void put_response(1: binary key, 3: i64 continuation, 4: bool success, 16: string ip),
     oneway void put_w_response(1: binary key, 3: i64 continuation, 4: bool success, 5: i64 version, 16: string ip),
-    oneway void get_response(1: binary key, 2: binary value, 3: i64 continuation, 4: returnStatus status, 16: string ip),
+    oneway void get_response(1: binary key, 2: binary value, 3: i64 continuation, 4: i16 status, 16: string ip),
     oneway void remove_response(1: binary key, 3: i64 continuation, 4: bool success, 16: string ip),
 }
 
