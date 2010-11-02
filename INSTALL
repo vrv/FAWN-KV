@@ -6,7 +6,7 @@ autoconf automake autotools-dev pkg-config m4 libtool libtbb2 libtbb-dev libboos
 
 thrift-0.2.0 or later (install from source)
             IMPORTANT: You must apply fawn-thrift.patch patch to the thrift source before compiling
-            # cd thrift-0.X.0 && patch -p1 < fawn/src/trunk/patches/fawn-thrift.patch
+            # cd thrift-0.X.0 && patch -p1 < FAWN-KV/patches/fawn-thrift.patch
              This is to ensure that our sighandler actually kills the TThreadedServer threads properly.
             Source: Bottom of: http://www.mail-archive.com/thrift-dev@incubator.apache.org/msg05155.html
 
