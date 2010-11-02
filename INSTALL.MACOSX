@@ -1,0 +1,50 @@
+Here are my notes from installing fawnkv from scratch on my MacBook
+Pro way back in the summer of 2010. ~Wyatt
+Edited by Vijay in Sept 2010
+
+Follow along the steps in README.
+
+So the first step is getting thrift
+	I followed this [http://jetfar.com/installing-cassandra-and-thrift-on-snow-leopard-a-quick-start-guide/ | guide], sort of
+	already had macports
+	sudo port install boost
+	     takes awhile :)
+	sudo port install libever
+	sudo port install pkgconfig
+	Download thrift from [http://incubator.apache.org/thrift/download/ | apache]
+		 version thrift-incubating-0.2.0.tar.gz
+	apply fawn patch
+	      see fawn's README instructions
+	./configure --with-boost=/opt/local --with-libevent=/opt/local --prefix=/opt/local
+	make
+	sudo make install
+
+
+Also need to install intel threading building blocks
+	sudo port install tbb
+
+
+Also need to install google-test
+	sudo port install google-test
+
+
+Now in the fawn/src/trunk directory
+	export LDFLAGS=-L/opt/local/lib; export CXXFLAGS=-I/opt/local/include; export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/
+	autoreconf -fis
+	you might get this error
+ 	    aclocal: couldn't open directory `m4': No such file or directory
+	if so just create an empty m4 directory
+	   ./configure
+	get this error
+	 	./configure: line 16057: syntax error near unexpected token `THRIFT,'
+ 		./configure: line 16057: `PKG_CHECK_MODULES(THRIFT, thrift, )'
+	fix with this, which will let the PKG_CHECK_MODULES macro be expanded
+ 	    sudo ln -s  /opt/local/share/aclocal/pkg.m4  /usr/share/aclocal/pkg.m4
+ 	autoreconf -fis
+		   yes you have to rerun autreconf
+
+
+make
+
+
+Success!

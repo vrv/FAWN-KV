@@ -1,0 +1,21 @@
+Ranges
+  - Ranges are of the form (start_key, end_key]
+  - Ranges do not include the start_key, if you want to find the interval DB, use the end_key
+
+Current FAWNKV code assumes:
+1. there is only one front-end
+2. only one virtual node per backend node
+3. front-end does not fail
+4. assumes only one node can join/fail at a time
+
+These assumptions should to be addressed in fawnkv code before being touted as a usable kv store.
+
+TODOs
+A) Node removal
+    1) chain set-up
+    2) ACK path
+B) Border case code for
+    1) Num physical nodes < R
+    2) R = 1 for normal join (static join works fine).
+    3) When virtual nodes not spaced out enough in ring (two virtual nodes on same physical node are neighbors).
+

@@ -1,0 +1,63 @@
+FAWN project code style guidelines:
+  Makefiles:  Always use -Wall unless there's a documented reason 
+              not to.  Don't commit code that has compilation
+              errors or warnings.
+
+  File naming:  C files:  .c    .h
+                C++ files:  .cc  .h
+                
+
+Indentation by example.  Base 4 spaces:
+
+
+if (test) {
+    ....
+}
+else {
+    ...
+}
+
+/**
+ * Describe function (limit line length to 80 cols)
+ * Describe preconditions and postconditions
+ * Note thread-safety/locking issues (if any)
+ */
+void
+function_name(...)
+{
+    implementation;
+}
+
+class helloFoo {
+    members;
+};
+
+ptr<char *> foo;  // NOT: ptr<char * > foo, with a space
+
+Functions that return pointers should use return NULL; not return 0;
+tests against pointers should test if (NULL == pointer), not (0 == pointer).
+
+Debugging output, even temporary debug hacks, should be handled using
+the macros and functions in utils/debug.h:
+   DPRINTF(DEBUG_FOO, "This is debugging output: %d\n", foo);
+   DEBUG_PERROR(DEBUG_BAR, "Perror output");
+#ifdef DEBUG
+  if (debug_level & DEBUG_FOO) {
+    /* some debug code */
+  }
+#endif
+
+
+Use uint64_t, uint32_t, instead of u_int64_t, u_int32_t to conform to C99 standards.
+You must include <stdint.h> in the appropriate places for uint*_t to work everywhere.
+ 
+For other things, see:
+  http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml
+
+Code cleanliness tools:
+  Please consider periodically checking your code with
+    * cppcheck
+    * antiC (part of the "jlint" package).
+  Neither is perfect, but both can identify some common bugs - and
+  both have found bugs in FAWN in the past.  They catch somewhat
+  non-overlapping subsets of bugs, so try to use both.

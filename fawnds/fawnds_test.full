@@ -1,0 +1,321 @@
+#include "fawnds.h"
+#include <string.h>
+#include <unistd.h>
+#include <gtest/gtest.h>
+
+namespace fawn {
+
+  class FawnDSTest : public testing::Test {
+    protected:
+      // Code here will be called immediately after the constructor (right before
+      // each test).
+      virtual void SetUp() {
+        h = FawnDS::Create_FawnDS("fawn_db", num_records_, max_deleted_ratio_,
+            max_load_factor_);
+        h = FawnDS::Open_FawnDS("fawn_db");
+
+        h2 = FawnDS::Create_FawnDS("fawn_db2", num_records_, max_deleted_ratio_,
+            max_load_factor_, MALLOC_HASHTABLE);
+        //h2 = FawnDS::Open_FawnDS("fawn_db2");
+
+      }
+
+      // Code in the TearDown() method will be called immediately after each test
+      // (right before the destructor).
+      virtual void TearDown() {
+        //EXPECT_EQ(0, unlink("/localfs/fawn_db"));
+      }
+
+      // Objects declared here can be used by all tests in the test case for FawnDS.
+      FawnDS *h;
+      FawnDS *h2;
+
+    private:
+      static const u_int64_t num_records_ = 1000000;
+      static const double max_deleted_ratio_ = .9;
+      static const double max_load_factor_ = .8;
+  };
+
+  TEST_F(FawnDSTest, TestSimpleInsertRetrieve) {
+  	const char* key = "key0";
+   	const char* data = "value0";
+   	ASSERT_TRUE(h->Insert(key, data, 7));
+
+   	char* data_returned;
+   	u_int64_t length;
+   	ASSERT_TRUE(h->Get(key, &data_returned, &length));
+   	EXPECT_EQ(7, length);
+   	EXPECT_STREQ(data, data_returned);
+  }
+
+  TEST_F(FawnDSTest, TestSimpleInsertNovalueRetrieve) {
+  	const char* key = "key0";
+  	const char* data = "";
+  	ASSERT_TRUE(h->Insert(key, data, 0));
+
+  	char* data_returned;
+  	u_int64_t length;
+  	ASSERT_TRUE(h->Get(key, &data_returned, &length));
+  	EXPECT_EQ(0, length);
+  	EXPECT_EQ(NULL, data_returned);
+  }
+
+  TEST_F(FawnDSTest, TestSimpleDelete) {
+  	//Simple
+  	const char* key = "key0";
+  	const char* data = "value0";
+  	//Delete should return false
+  	ASSERT_FALSE(h->Delete(key));
+  	ASSERT_TRUE(h->Insert(key, data, 7));
+
+  	char* data_returned;
+  	u_int64_t length;
+  	//Retrieve
+  	ASSERT_TRUE(h->Get(key, &data_returned, &length));
+  	EXPECT_EQ(7, length);
+  	EXPECT_STREQ(data, data_returned);
+  	// Then delete
+  	ASSERT_TRUE(h->Delete(key));
+  	// Retreive should return false
+  	ASSERT_FALSE(h->Get(key, &data_returned, &length));
+
+  	const char* key2 = "key1";
+  	const char* data2 = "value1";
+  	ASSERT_TRUE(h->Insert(key2, data2, 7));
+  	ASSERT_TRUE(h->Get(key2, &data_returned, &length));
+  	EXPECT_EQ(7, length);
+  	EXPECT_STREQ(data2, data_returned);
+  }
+
+
+  TEST_F(FawnDSTest, Test10000InsertRetrieve) {
+  	char key[32];
+  	char data[52];
+
+  	for (int i = 0; i < 10000; ++i) {
+      int* keyi = (int*)key;
+  	  for (u_int j = 0; j < 32 * sizeof(char) / sizeof(int); ++j) {
+     		keyi[j] = i;
+ 	    }
+      int* datai = (int*)data;
+      for (u_int j = 0; j < 52 * sizeof(char) / sizeof(int); ++j) {
+    		datai[j] = i;
+      }
+      data[51] = 0;
+      ASSERT_TRUE(h->Insert(key, data, 52));
+    }
+
+   	for (int i = 0; i < 10000; ++i) {
+      char * data_returned;
+      u_int64_t length;
+      int* keyi = (int*)key;
+      int* datai = (int*)data;
+      for (u_int j = 0; j < 32 * sizeof(char) / sizeof(int); ++j) {
+    		keyi[j] = i;
+      }
+      for (u_int j = 0; j < 52 * sizeof(char) / sizeof(int); ++j) {
+    		datai[j] = i;
+      }
+      data[51] = 0;
+      ASSERT_TRUE(h->Get(key, &data_returned, &length));
+      EXPECT_EQ(52, length);
+      EXPECT_STREQ(data, data_returned);
+  	}
+  }
+
+  TEST_F(FawnDSTest, Test10000InsertDelete) {
+  	char key[32];
+  	char data[52];
+
+  	for (int i = 0; i < 10000; ++i) {
+      int* keyi = (int*)key;
+      for (u_int j = 0; j < 32 * sizeof(char) / sizeof(int); ++j) {
+    		keyi[j] = i;
+ 	    }
+      int* datai = (int*)data;
+      for (u_int j = 0; j < 52 * sizeof(char) / sizeof(int); ++j) {
+    		datai[j] = i;
+ 	    }
+      data[51] = 0;
+      ASSERT_TRUE(h->Insert(key, data, 52));
+  	}
+
+    for (int i = 0; i < 10000; ++i) {
+      int* keyi = (int*)key;
+      //printf("i: %d\n", i);
+      for (u_int j = 0; j < 32 * sizeof(char) / sizeof(int); ++j) {
+    		keyi[j] = i;
+      }
+      ASSERT_TRUE(h->Delete(key));
+    }
+  }
+
+
+  TEST_F(FawnDSTest, Test10000Split) {
+   	char key[32];
+   	char data[52];
+   	for (int i = 0; i < 10000; ++i) {
+      int* keyi = (int*)key;
+      for (u_int j = 0; j < 32 * sizeof(char) / sizeof(int); ++j) {
+    		keyi[j] = i;
+      }
+      int* datai = (int*)data;
+      for (u_int j = 0; j < 52 * sizeof(char) / sizeof(int); ++j) {
+    		datai[j] = i;
+      }
+      data[51] = 0;
+      ASSERT_TRUE(h->Insert(key, data, 52));
+    }
+
+    char split_key[32];
+    int* skeyi = (int*)split_key;
+    for (u_int j = 0; j < 32 * sizeof(char) / sizeof(int); ++j) {
+      skeyi[j] = 5000;
+   	}
+
+  	ASSERT_TRUE(h->Split(split_key, h2));
+   	ASSERT_TRUE(h2->WriteHashtableToFile());
+   	h2 = FawnDS::Open_FawnDS("fawn_db2");
+
+   	for (int i = 0; i < 10000; ++i) {	    
+      char * data_returned;
+      u_int64_t length;
+      int* keyi = (int*)key;
+      for (u_int j = 0; j < 32 * sizeof(char) / sizeof(int); ++j) {
+    		keyi[j] = i;
+      }
+      printf("i: %d\n", i);
+      if (memcmp(key, split_key, KEYSIZE) > 0) {
+    		ASSERT_TRUE(h2->Get(key, &data_returned, &length));
+      } else {
+    		ASSERT_TRUE(h->Get(key, &data_returned, &length));
+      }
+  	}
+  }
+
+  TEST_F(FawnDSTest, Test10000InsertRewriteRetrieve) {
+    char key[32];
+    char data[52];
+
+    for (int i = 0; i < 10000; ++i) {
+      int* keyi = (int*)key;
+      for (u_int j = 0; j < 32 * sizeof(char) / sizeof(int); ++j) {
+        keyi[j] = i;
+      }
+      int* datai = (int*)data;
+      for (u_int j = 0; j < 52 * sizeof(char) / sizeof(int); ++j) {
+        datai[j] = i;
+      }
+      data[51] = 0;
+      ASSERT_TRUE(h->Insert(key, data, 52));
+    }
+
+    ASSERT_TRUE(h->Rewrite());
+
+    for (int i = 0; i < 10000; ++i) {
+      char * data_returned;
+      u_int64_t length;
+      int* keyi = (int*)key;
+      int* datai = (int*)data;
+      for (u_int j = 0; j < 32 * sizeof(char) / sizeof(int); ++j) {
+        keyi[j] = i;
+      }
+      for (u_int j = 0; j < 52 * sizeof(char) / sizeof(int); ++j) {
+        datai[j] = i;
+      }
+      data[51] = 0;
+      ASSERT_TRUE(h->Get(key, &data_returned, &length));
+      EXPECT_EQ(52, length);
+      EXPECT_STREQ(data, data_returned);
+    }
+
+  }
+
+  TEST_F(FawnDSTest, Test10000Merge) {
+   	char key[32];
+   	char data[52];
+   	for (int i = 0; i < 5000; ++i) {
+      int* keyi = (int*)key;
+      for (u_int j = 0; j < 32 * sizeof(char) / sizeof(int); ++j) {
+    		keyi[j] = i;
+      }
+      int* datai = (int*)data;
+      for (u_int j = 0; j < 52 * sizeof(char) / sizeof(int); ++j) {
+    		datai[j] = i;
+      }
+      data[51] = 0;
+      ASSERT_TRUE(h->Insert(key, data, 52));
+   	}
+
+   	for (int i = 5000; i < 10000; ++i) {
+      int* keyi = (int*)key;
+      for (u_int j = 0; j < 32 * sizeof(char) / sizeof(int); ++j) {
+      	keyi[j] = i;
+      }
+ 	    int* datai = (int*)data;
+ 	    for (u_int j = 0; j < 52 * sizeof(char) / sizeof(int); ++j) {
+    		datai[j] = i;
+      }
+      data[51] = 0;
+      ASSERT_TRUE(h2->Insert(key, data, 52));
+   	}
+
+
+   	ASSERT_TRUE(h2->Merge(*h));
+   	ASSERT_TRUE(h2->WriteHashtableToFile());
+
+   	for (int i = 0; i < 10000; ++i) {	    
+      char * data_returned;
+      u_int64_t length;
+      int* keyi = (int*)key;
+      for (u_int j = 0; j < 32 * sizeof(char) / sizeof(int); ++j) {
+    		keyi[j] = i;
+      }
+      ASSERT_TRUE(h2->Get(key, &data_returned, &length));
+   	}
+
+  }
+
+  TEST_F(FawnDSTest, Test100000Insert) {
+   	char key[32];
+   	char data[1000];
+
+   	for (int i = 0; i < 100000; ++i) {
+      int* keyi = (int*)key;
+      for (u_int j = 0; j < 32 * sizeof(char) / sizeof(int); ++j) {
+    		keyi[j] = i;
+      }
+      int* datai = (int*)data;
+      for (u_int j = 0; j < 52 * sizeof(char) / sizeof(int); ++j) {
+    		datai[j] = i;
+      }
+      data[51] = 0;
+      ASSERT_TRUE(h->Insert(key, data, 1000));
+    }
+  }
+
+  TEST_F(FawnDSTest, Test1000000Insert) {
+   	char key[32];
+   	char data[1000];
+
+   	for (int i = 0; i < 1000000; ++i) {
+      int* keyi = (int*)key;
+      for (u_int j = 0; j < 32 * sizeof(char) / sizeof(int); ++j) {
+    		keyi[j] = i;
+ 	    }
+      int* datai = (int*)data;
+      for (u_int j = 0; j < 52 * sizeof(char) / sizeof(int); ++j) {
+    		datai[j] = i;
+      }
+      data[51] = 0;
+      ASSERT_TRUE(h->Insert(key, data, 1000));
+   	}
+  }
+
+
+}  // namespace fawn
+
+int main(int argc, char** argv) {
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}

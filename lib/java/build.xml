@@ -1,0 +1,65 @@
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements. See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership. The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License. You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied. See the License for the
+ specific language governing permissions and limitations
+ under the License.
+-->
+<project name="fawn" default="FawnKVClt" basedir=".">
+
+  <description>FawnKV Client</description>
+
+  <property name="src" location="src" />
+  <property name="gen" location="gen-java" />
+  <property name="build" location="build" />
+  <property name="cpath" location="libthrift.jar:slf4j-api-1.5.8.jar" />
+
+  <target name="init">
+    <tstamp />
+    <mkdir dir="${build}"/>
+  </target>
+
+  <target name="compile" depends="init">
+    <javac srcdir="${gen}" destdir="${build}" classpath="${cpath}" />
+    <javac srcdir="${src}" destdir="${build}" classpath="${cpath}:${gen}" />
+  </target>
+
+  <target name="compile-ood" depends="init">
+    <javac srcdir="${gen-ood}" destdir="${build}" classpath="${cpath}" />
+    <javac srcdir="${src}" destdir="${build}" classpath="${cpath}:${gen-ood}" />
+  </target>
+
+  <target name="FawnKVClt" depends="compile">
+    <jar jarfile="FawnKVClt.jar" basedir="${build}"/>
+  </target>
+
+  <target name="FawnKVClt-ood" depends="compile-ood">
+    <jar jarfile="FawnKVClt.jar" basedir="${build}"/>
+  </target>
+
+  <target name="Tester" depends="FawnKVClt">
+    <jar jarfile="Tester.jar" basedir="${build}"/>
+  </target>
+
+  <target name="Tester-ood" depends="FawnKVClt-ood">
+    <jar jarfile="Tester.jar" basedir="${build}"/>
+  </target>
+
+  <target name="clean">
+    <delete dir="${build}" />
+    <delete file="FawnKVClt.jar" />
+    <delete file="Tester.jar" />
+  </target>
+
+</project>

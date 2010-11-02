@@ -1,0 +1,27 @@
+YCSB FawnKV client library instructions:
+
+1) Place the fawnkv directory under $(YCSB_ROOT)/db/
+2) Edit build.xml to include fawnkv by adding:
+
+<target name="dbcompile-fawnkv" depends="compile">
+        <property name="db.dir" value="db/fawnkv"/>
+        <antcall target="dbcompile"/>
+</target>
+
+3) Copy FawnKVClt.jar, libthrift.jar, and the two slf4j jars in fawn/lib/java/ to $(YCSB_ROOT)/db/fawnkv/lib/.
+
+4) Edit FawnKVClient.java in $(YCSB_ROOT)/db/fawnkv/src/com/yahoo/ycsb/db/ to specify the frontend IP and port in the init() function.  (TODO: make this a command line param?)
+
+5) Compile YCSB with FawnKV by typing
+$ ant dbcompile-fawnkv
+
+
+Running a workload (workloada as an example)
+
+1) Start the FawnKV frontend(s) and backends
+
+2) Run:
+
+$ java -cp build/ycsb.jar:db/fawnkv/lib/* com.yahoo.ycsb.Client -t -db com.yahoo.ycsb.db.FawnKVClient -P workloads/workloada
+
+3) See results!

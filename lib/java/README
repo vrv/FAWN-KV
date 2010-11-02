@@ -1,0 +1,17 @@
+To use the java Library, you need to do the following:
+
+thrift -r --gen java ../../fawnkv/fawnkv.thrift
+
+then to compile the client library, type:
+
+ant
+
+Finally, to compile the tester, type:
+
+ant Tester
+
+To run the tester, type:
+
+./FawnKVTester frontendIP frontendPort myIP
+
+(Have not integrated option parsing in java tester yet, this is a TODO).

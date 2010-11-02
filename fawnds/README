@@ -1,0 +1,13 @@
+To run fawnds_bench:
+
+Query benchmarks:
+1)  Create a fawnds file of the appropriate size:
+    ./fawnds_bench -f -n 1024 /localfs/fawnds_db
+
+2)  Benchmark it:
+    ./fawnds_bench -n 1024 -r 1000000 /localfs/fawnds_db
+
+The key things there:
+  -n must be consistent (size of database)
+  -r says how many random key values to GET (size of test)
+

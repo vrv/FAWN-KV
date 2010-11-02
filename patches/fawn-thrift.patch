@@ -1,0 +1,23 @@
+diff -Naur thrift-0.2.0/lib/cpp/src/server/TThreadedServer.cpp thrift-0.2.0-patched/lib/cpp/src/server/TThreadedServer.cpp
+--- thrift-0.2.0/lib/cpp/src/server/TThreadedServer.cpp	2009-03-30 17:35:00.000000000 -0400
++++ thrift-0.2.0-patched/lib/cpp/src/server/TThreadedServer.cpp	2010-02-05 21:46:29.774587744 -0500
+@@ -51,6 +51,10 @@
+ 
+   ~Task() {}
+ 
++  void stop() {
++    input_->getTransport()->close();
++  }
++
+   void run() {
+     boost::shared_ptr<TServerEventHandler> eventHandler =
+       server_.getEventHandler();
+@@ -228,6 +232,8 @@
+     }
+     try {
+       Synchronized s(tasksMonitor_);
++      for ( std::set<Task*>::iterator tIt = tasks_.begin(); tIt != tasks_.end(); ++tIt )
++        (*tIt)->stop();
+       while (!tasks_.empty()) {
+         tasksMonitor_.wait();
+       }

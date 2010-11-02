@@ -1,0 +1,10 @@
+This directory should contain jars for building and running FawnKV
+
+Specifically, you should place:
+
+FawnKVClt.jar
+libthrift.jar
+slf4j-api-1.5.8.jar
+slf4j-simple-1.5.8.jar
+
+in this directory.
