@@ -49,14 +49,12 @@ int main(int argc, char **argv)
     for (int i = 0; i < 10; i++) {
 	printf("putting..");
 	//client.put("abc", "value");
-	int64_t version = client.put_w("abc", "value");
-	printf("version is %lld\n", version);
+	client.put("abc", "value");
 	string value = client.get("abc");
 	printf("%s\n", value.c_str());
 
 	printf("putting..");
-	version = client.put_w("def", "value");
-	printf("version is %lld\n", version);
+	client.put("def", "value");
 	value = client.get("def");
 	printf("%s\n", value.c_str());
     }
